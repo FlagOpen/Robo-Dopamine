@@ -5,7 +5,7 @@
 
 
 <p align="center">
-  <a href="#"><img src="https://img.shields.io/badge/arXiv-Stay%20tuned-b31b1b.svg" alt="arXiv"></a>
+  <a href="https://arxiv.org/pdf/2512.23703"><img src="https://img.shields.io/badge/arXiv-2512.23703-b31b1b.svg" alt="arXiv"></a>
   &nbsp;
   <a href="https://robo-dopamine.github.io/"><img src="https://img.shields.io/badge/%F0%9F%8F%A0%20Project-Homepage-blue" alt="Project Homepage"></a>
   &nbsp;
@@ -50,7 +50,7 @@ If you find our work helpful, feel free to cite it:
 @article{tan2025robodopamine,
     title={Robo-Dopamine: General Process Reward Modeling for High-Precision Robotic Manipulation}, 
     author={Tan, Huajie and Chen, Sixiang and Xu, Yijie and Wang, Zixiao and Ji, Yuheng and Chi, Cheng and Lyu, Yaoxu and Zhao, Zhongxia and Chen, Xiansheng and Co, Peterson and Xie, Shaoxuan and Yao, Guocai and Wang, Pengwei and Wang, Zhongyuan and Zhang, Shanghang},
-    journal={TODO},
+    journal={arXiv preprint arXiv:2512.23703},
     year={2025}
 }
 ```
