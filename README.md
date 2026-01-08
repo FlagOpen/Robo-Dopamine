@@ -9,7 +9,7 @@
   &nbsp;
   <a href="https://robo-dopamine.github.io/"><img src="https://img.shields.io/badge/%F0%9F%8F%A0%20Project-Homepage-blue" alt="Project Homepage"></a>
   &nbsp;
-  <a href="https://huggingface.co/tanhuajie2001/Robo-Dopamine-GRM-3B"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Weights-Huggingface-yellow" alt="Weights"></a>
+  <a href="https://huggingface.co/collections/tanhuajie2001/robo-dopamine"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Weights-Huggingface-yellow" alt="Weights"></a>
   &nbsp;
   <a href="#"><img src="https://img.shields.io/badge/🤗%20Dataset-Stay%20tuned-green.svg" alt="Dataset"></a>
   &nbsp;
