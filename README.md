@@ -49,6 +49,10 @@ This approach is universally compatible with a wide range of RL algorithms.
     <img src="assets/method.png" alt="Logo" style="width=100%;vertical-align:middle">
 </div>
 
+<div align="center"> 
+    <img src="assets/vsi.png" alt="Logo" style="width=100%;vertical-align:middle">
+</div>
+
 
 ## 🤗 Model Zoo
 
