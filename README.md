@@ -13,7 +13,7 @@
   &nbsp;
   <a href="#"><img src="https://img.shields.io/badge/🤗%20Dataset-Stay%20tuned-green.svg" alt="Dataset"></a>
   &nbsp;
-  <a href="#"><img src="https://img.shields.io/badge/🔍%20Benchmark-Stay%20tuned-orange.svg" alt="Benchmark"></a>
+  <a href="https://huggingface.co/datasets/tanhuajie2001/Robo-Dopamine-Bench"><img src="https://img.shields.io/badge/🔍%20Benchmark-RoboDopamineBench-orange.svg" alt="Benchmark"></a>
   &nbsp;
 
 </p>
@@ -25,6 +25,7 @@
 
 
 ## 🗞️ News
+- **`2026-01-26`**: 🔍 We released [Robo-Dopamine-Bench](https://huggingface.co/datasets/tanhuajie2001/Robo-Dopamine-Bench) benchmark and evaluation codes.
 - **`2026-01-08`**: 🤗 We released [Robo-Dopamine-GRM-3B](https://huggingface.co/tanhuajie2001/Robo-Dopamine-GRM-3B) model and inference codes.
 - **`2025-12-30`**: ✨ ***Codes, Dataset and Weights are coming soon! Stay tuned for updates***.
 - **`2025-12-30`**: 🔥 We released our [Project Page](https://robo-dopamine.github.io/) of **Robo-Dopamine**.
@@ -32,9 +33,9 @@
 
 ## 🎯 TODO
 - [x] Release Robo-Dopamine-GRM-3B model and inference codes.
-- [ ] Release Dopamine-Bench benchmark and evaluation codes. *(About 1 week)*.
+- [x] Release Robo-Dopamine-Bench benchmark and evaluation codes.
 - [ ] Release Robo-Dopamine-GRM-8B model *(About 2 week)*.
-- [ ] Release Robo-Dopamine-GRM-8B-Pro model *(About 2 week)*.
+- [ ] Release Robo-Dopamine-GRM-8B-Pro model *(About 3 week)*.
 - [ ] Release full GRM dataset and GRM training codes *(About 1 months)*.
 - [ ] Release data generation pipeline and finetune codes *(Maybe 1 months or more)*.
 - [ ] Release Dopamine-RL training codes for simulator and real-world settings *(Maybe 2 months or more)*.
@@ -177,14 +178,48 @@ print(f"Episode ({BASE_DEMO_PATH}) processed with Backward-Mode. Output at: {out
     <img src="assets/example_backward.png" alt="Logo" style="width=75%;vertical-align:middle">
 </div>
 
+## 🔍 Evaluation
+
+### 0. Download `Robo-Dopamine-Bench` from huggingface.
+```bash 
+# download benchmark
+huggingface-cli download --repo-type dataset --resume-download tanhuajie2001/Robo-Dopamine-Bench --local-dir ./Robo-Dopamine-Bench
+
+# unzip images
+cd Robo-Dopamine-Bench
+unzip image.zip
+cd ..
+```
+
+### 1. Evaluate local GRM with vLLM.
+```bash
+export CUDA_VISIBLE_DEVICES=0 
+python -m eval.evaluation_grm \
+  --model_path tanhuajie2001/Robo-Dopamine-GRM-3B \
+  --input_json_dir ./Robo-Dopamine-Bench/jsons \
+  --base_dir ./Robo-Dopamine-Bench/images \
+  --out_root_dir ./eval_results/results_Robo-Dopamine-GRM-3B \
+  --batch_size 16
+```
+
+### 2. Evaluate other models with API.
+```bash
+python evaluation_api.py \
+  --model_name <MODEL-NAME, e.g., gpt-4o, gemini-3-pro> \
+  --api_key <OPENAI-API-KEY> \
+  --base_url <OPENAI-BASE-URL> \
+  --input_json_dir ./Robo-Dopamine-Bench/jsons \
+  --base_dir ./Robo-Dopamine-Bench/images \
+  --out_root_dir ./eval_results/results_{MODEL-NAME} \
+  --max_workers 16
+```
+
 ## 🤖 Pre-Training
 ***Coming soon ...***
 
 ## ⚡ Fine-Tuning
 ***Coming soon ...***
 
-## 🔍 Evaluation
-***Coming soon ...***
 
 ## 📑 Citation
 
