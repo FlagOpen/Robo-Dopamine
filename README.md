@@ -204,7 +204,7 @@ python -m eval.evaluation_grm \
 
 ### 2. Evaluate other models with API.
 ```bash
-python evaluation_api.py \
+python -m eval.evaluation_api \
   --model_name <MODEL-NAME, e.g., gpt-4o, gemini-3-pro> \
   --api_key <OPENAI-API-KEY> \
   --base_url <OPENAI-BASE-URL> \
