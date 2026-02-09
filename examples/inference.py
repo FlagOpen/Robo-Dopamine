@@ -17,6 +17,7 @@ from PIL import Image
 # VLLM & Transformers
 from vllm import LLM, SamplingParams
 from transformers import AutoProcessor
+from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
 
 # Global Environment Settings
 os.environ['LOCAL_RANK'] = '0'
@@ -250,6 +251,7 @@ def plot_video_reward(episode_root: Path):
     """
     Generates a visualization video (reward_vis.mp4).
     Feature: Uses 'symlog' (Symmetric Log) scale for the Hop plot.
+    Modified: Uses moviepy instead of cv2.VideoWriter for better compatibility.
     """
     pred_path = episode_root / "pred_vllm.json"
     if not pred_path.exists():
@@ -265,25 +267,21 @@ def plot_video_reward(episode_root: Path):
         m = re.search(r"frame_(\d+)\.png", os.path.basename(p))
         return int(m.group(1)) if m else 0
 
+    # Output path
+    out_path = episode_root / "reward_vis.mp4"
+
+    # Layout dimensions
     W_panel, H_panel = 384, 288
     H_plot = 260
     W_total = 3 * W_panel
     H_total = H_panel + H_plot
-    
-    out_path = episode_root / "reward_vis.mp4"
-    
-    fourcc = cv2.VideoWriter_fourcc(*"avc1")
-    writer = cv2.VideoWriter(str(out_path), fourcc, 4.0, (W_total, H_total))
-    if not writer.isOpened():
-        print("[WARN] 'avc1' codec failed, falling back to 'mp4v'...")
-        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        writer = cv2.VideoWriter(str(out_path), fourcc, 4.0, (W_total, H_total))
-    if not writer.isOpened():
-        print(f"[ERROR] Could not open VideoWriter for {out_path}")
-        return
 
+    # Data containers
     xs_step, ys_hop, c_hop = [], [], []
     xs_frame, ys_prog, c_prog = [], [], []
+    
+    # Buffer to store frames for moviepy (Must be RGB)
+    frames_buffer = []
 
     def draw_plots():
         dpi = 100
@@ -323,46 +321,59 @@ def plot_video_reward(episode_root: Path):
         fig.canvas.draw()
         img = np.asarray(fig.canvas.buffer_rgba())
         plt.close(fig)
-        img = cv2.cvtColor(img, cv2.COLOR_RGBA2BGR)
+        
+        # NOTE: Convert to RGB for moviepy (Matplotlib RGBA -> RGB)
+        img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
         return cv2.resize(img, (W_total, H_plot), interpolation=cv2.INTER_AREA)
+
+    def read_images_rgb(paths):
+        """Helper to read images and convert BGR to RGB immediately."""
+        imgs = []
+        for p in paths:
+            im = cv2.imread(p)
+            if im is None:
+                return None
+            im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+            imgs.append(im)
+        return imgs
 
     try:
         # --- Initial Frame ---
         first = items[0]
-        # In Backward/Forward mode, image[2,3,4] (Before) might be Goal or Start.
-        # This visualization logic assumes standard display.
-        imgs_top = [cv2.imread(first["image"][i]) for i in [3, 2, 4]]
-        if any(im is None for im in imgs_top):
-            writer.release()
-            return
+        # Images: [Goal, Start, Current] equivalent indices based on original logic
+        imgs_top = read_images_rgb([first["image"][i] for i in [3, 2, 4]])
+        
+        if imgs_top:
+            top_row = np.hstack([cv2.resize(im, (W_panel, H_panel)) for im in imgs_top])
+            
+            # Frame 0 setup
+            xs_step.append(0)
+            ys_hop.append(0.0)
+            c_hop.append("#808080")
+            
+            xs_frame.append(0)
+            ys_prog.append(0.0)
+            c_prog.append("#00A000")
+            
+            bottom_plot = draw_plots()
+            frame_comp = np.vstack([top_row, bottom_plot])
+            
+            if frame_comp.shape[:2] != (H_total, W_total):
+                frame_comp = cv2.resize(frame_comp, (W_total, H_total))
 
-        top_row = np.hstack([cv2.resize(im, (W_panel, H_panel)) for im in imgs_top])
-        
-        # Frame 0 is Ref Start
-        xs_step.append(0)
-        ys_hop.append(0.0)
-        c_hop.append("#808080")
-        
-        xs_frame.append(0)
-        ys_prog.append(0.0)
-        c_prog.append("#00A000")
-        
-        bottom_plot = draw_plots()
-        frame_comp = np.vstack([top_row, bottom_plot])
-        
-        if frame_comp.shape[:2] != (H_total, W_total):
-            frame_comp = cv2.resize(frame_comp, (W_total, H_total))
-
-        cv2.putText(frame_comp, "Start", (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255,255,255), 2)
-        writer.write(frame_comp)
+            # Text (White is (255,255,255) in RGB as well)
+            cv2.putText(frame_comp, "Start", (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255,255,255), 2)
+            
+            frames_buffer.append(frame_comp)
 
         # --- Loop ---
         prev_prog = 0.0
         cum_frame = 0
         
         for i, item in enumerate(items):
-            imgs_top = [cv2.imread(item["image"][idx]) for idx in [6, 5, 7]]
-            if any(im is None for im in imgs_top): 
+            # Indices for standard display logic from original code
+            imgs_top = read_images_rgb([item["image"][idx] for idx in [6, 5, 7]])
+            if not imgs_top:
                 continue
 
             top_row = np.hstack([cv2.resize(im, (W_panel, H_panel)) for im in imgs_top])
@@ -371,14 +382,11 @@ def plot_video_reward(episode_root: Path):
             prog = float(item.get("progress", 0))
             
             step_id = i + 1
-            # Simple frame counter approximation
-            cum_frame += 10 # Just for viz x-axis spacing if real parsing fails
+            cum_frame += 10
             try:
-                # Try real parsing
                 fid_curr = get_fid(item["image"][5])
-                # We want absolute frame id on x-axis
                 cum_frame = fid_curr
-            except:  # noqa: E722
+            except Exception:
                 pass
             
             xs_step.append(step_id)
@@ -398,13 +406,25 @@ def plot_video_reward(episode_root: Path):
             
             info_txt = f"Step={step_id} Hop={hop:.2f} Prog={prog:.2f}"
             cv2.putText(frame_comp, info_txt, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255,255,255), 2)
-            writer.write(frame_comp)
+            
+            frames_buffer.append(frame_comp)
+
+        # --- Write Video with MoviePy ---
+        if frames_buffer:
+            print(f"Generating video with {len(frames_buffer)} frames...")
+            # Create clip from list of numpy arrays (RGB)
+            clip = ImageSequenceClip(frames_buffer, fps=4.0)
+            
+            # Write file
+            clip.write_videofile(str(out_path), logger=None)
+            print(f"Video saved to: {out_path}")
+        else:
+            print("[WARN] No frames generated.")
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"[ERROR] {e}")
-    finally:
-        writer.release()
-        print(f"Video saved to: {out_path}")
 
 # -----------------------------
 # Main Inference Class
