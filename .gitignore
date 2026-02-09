@@ -210,3 +210,5 @@ __marimo__/
 results/
 checkpoints/
 myrun.py
+
+dataset/train_data

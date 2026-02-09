@@ -25,6 +25,7 @@
 
 
 ## 🗞️ News
+- **`2026-02-10`**: ⚡  We released data generation pipeline and finetune codes. ***Try to finetune with your own data***.
 - **`2026-01-26`**: 🔍 We released [Robo-Dopamine-Bench](https://huggingface.co/datasets/tanhuajie2001/Robo-Dopamine-Bench) benchmark and evaluation codes.
 - **`2026-01-08`**: 🤗 We released [Robo-Dopamine-GRM-3B](https://huggingface.co/tanhuajie2001/Robo-Dopamine-GRM-3B) model and inference codes.
 - **`2025-12-30`**: ✨ ***Codes, Dataset and Weights are coming soon! Stay tuned for updates***.
@@ -34,10 +35,10 @@
 ## 🎯 TODO
 - [x] Release Robo-Dopamine-GRM-3B model and inference codes.
 - [x] Release Robo-Dopamine-Bench benchmark and evaluation codes.
+- [x] Release data generation pipeline and finetune codes.
 - [ ] Release Robo-Dopamine-GRM-8B model *(About 2 week)*.
 - [ ] Release Robo-Dopamine-GRM-8B-Pro model *(About 3 week)*.
 - [ ] Release full GRM dataset and GRM training codes *(About 1 months)*.
-- [ ] Release data generation pipeline and finetune codes *(Maybe 1 months or more)*.
 - [ ] Release Dopamine-RL training codes for simulator and real-world settings *(Maybe 2 months or more)*.
 
 
@@ -214,10 +215,101 @@ python -m eval.evaluation_api \
   --max_workers 16
 ```
 
-## 🤖 Pre-Training
-***Coming soon ...***
-
 ## ⚡ Fine-Tuning
+### Step 1. Reconstruct Your Own Dataset
+
+***Raw Data Directory Structure***: The `dataset/example_raw_data` directory serves as a sample to demonstrate the required structure for your own raw data, ensuring compatibility with our provided data processing scripts.
+```
+example_raw_data/
+├── episode_001/
+│   ├── annotated_keyframes.json   # Keyframe annotations for subtask segmentation
+│   ├── cam_high.mp4               # Video from the high-mounted camera
+│   ├── cam_left_wrist.mp4         # Video from the left wrist-mounted camera
+│   └── cam_right_wrist.mp4        # Video from the right wrist-mounted camera
+├── episode_002/
+│   ├── annotated_keyframes.json
+│   ├── cam_high.mp4
+│   ├── cam_left_wrist.mp4
+│   └── cam_right_wrist.mp4
+├── episode_003/
+│   ├── annotated_keyframes.json
+│   ├── cam_high.mp4
+│   ├── cam_left_wrist.mp4
+│   └── cam_right_wrist.mp4
+├── ...
+├── episode_xxx/                   # Generalized episode directory (xxx = episode number)
+│   ├── annotated_keyframes.json
+│   ├── cam_high.mp4
+│   ├── cam_left_wrist.mp4
+│   └── cam_right_wrist.mp4
+└── task_instruction.json          # Natural language task instructions (shared across all episodes)
+```
+
+### Step 2. Process Your Own Dataset 
+
+Here, we use `dataset/example_raw_data` as an example.
+
+```bash
+cd dataset
+
+# first, pre-process the raw data with sample_factor
+python -m utils.0_preprocess_data \
+  --raw_dir ./example_raw_data \
+  --cvt_dir ./train_data \
+  --sample_factor 20
+
+# then, generate training data with bin-sampling strategy
+python -m utils.1_generate_data \
+  --base-dir ./train_data \
+  --score-bins 25 \
+  --gap-bins 4 \
+  --oversample-factor 100 \
+  --zero-ratio 0.05 \
+  --max_sample_num 1000
+
+# finally, post-process the sampled data for fine-tuning
+python -m utils.2_posprocess_data \
+  --root-dir ./train_data \
+  --merged-json ./train_data/train_jsons/finetune_data_wo_replace.json \
+  --final-json ./train_data/train_jsons/finetune_data_final.json \
+  --replace-prob 0.75
+
+```
+
+### Step 3. Fine-Tune GRM with Your Own Dataset 
+
+**Add the meta-info of your own dataset to `train/qwenvl/data/__init__.py`**
+```python
+# modified here
+EXAMPLE_GRM_FINETUNE = {
+    "annotation_path": "./dataset/train_data/train_jsons/finetune_data_final.json",
+    "data_path": "./dataset",
+}
+
+# modified here
+data_dict = {
+    "example_grm_finetune": EXAMPLE_GRM_FINETUNE,
+}
+```
+
+**Modify the path of training script `train/scripts/finetune_grm.sh`**
+```python
+# ======================
+# Path Configuration
+# ======================
+MODEL_PATH="tanhuajie2001/Robo-Dopamine-GRM-3B" # modified here
+OUTPUT_DIR="./checkpoints/example_grm_finetune" # modified here
+DATASETS=example_grm_finetune                   # modified here
+```
+
+**Launch the training script**
+```bash
+cd ../train
+bash scripts/finetune_grm.sh
+```
+
+
+## 🤖 Pre-Training
 ***Coming soon ...***
 
 
