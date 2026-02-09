@@ -1,0 +1,82 @@
+[
+    {
+        "anotation": "subtask1",
+        "start_frame_id": 8,
+        "end_frame_id": 147
+    },
+    {
+        "anotation": "subtask2",
+        "start_frame_id": 147,
+        "end_frame_id": 211
+    },
+    {
+        "anotation": "subtask3",
+        "start_frame_id": 211,
+        "end_frame_id": 286
+    },
+    {
+        "anotation": "subtask4",
+        "start_frame_id": 286,
+        "end_frame_id": 370
+    },
+    {
+        "anotation": "subtask5",
+        "start_frame_id": 370,
+        "end_frame_id": 462
+    },
+    {
+        "anotation": "subtask6",
+        "start_frame_id": 462,
+        "end_frame_id": 495
+    },
+    {
+        "anotation": "subtask7",
+        "start_frame_id": 495,
+        "end_frame_id": 574
+    },
+    {
+        "anotation": "subtask8",
+        "start_frame_id": 574,
+        "end_frame_id": 603
+    },
+    {
+        "anotation": "subtask9",
+        "start_frame_id": 603,
+        "end_frame_id": 669
+    },
+    {
+        "anotation": "subtask10",
+        "start_frame_id": 669,
+        "end_frame_id": 724
+    },
+    {
+        "anotation": "subtask11",
+        "start_frame_id": 724,
+        "end_frame_id": 840
+    },
+    {
+        "anotation": "subtask12",
+        "start_frame_id": 840,
+        "end_frame_id": 910
+    },
+    {
+        "anotation": "subtask13",
+        "start_frame_id": 910,
+        "end_frame_id": 1003
+    },
+    {
+        "anotation": "subtask14",
+        "start_frame_id": 1003,
+        "end_frame_id": 1110
+    },
+    {
+        "anotation": "subtask15",
+        "start_frame_id": 1110,
+        "end_frame_id": 1178
+    },
+    {
+        "anotation": "subtask16",
+        "start_frame_id": 1178,
+        "end_frame_id": 1263
+    }
+]
