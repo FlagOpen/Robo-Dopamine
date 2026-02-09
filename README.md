@@ -218,7 +218,7 @@ python -m eval.evaluation_api \
 ## ⚡ Fine-Tuning
 ### Step 1. Reconstruct Your Own Dataset
 
-***Raw Data Directory Structure***: The `dataset/example_raw_data` directory serves as a sample to demonstrate the required structure for your own raw data, ensuring compatibility with our provided data processing scripts.
+***Raw Data Directory Structure***: The `dataset/example_raw_data` directory serves as **an EXAMPLE** to demonstrate the required structure for your own raw data, ensuring compatibility with our provided data processing scripts.
 ```
 example_raw_data/
 ├── episode_001/
