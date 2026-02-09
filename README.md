@@ -38,7 +38,7 @@
 - [x] Release data generation pipeline and finetune codes.
 - [ ] Release Robo-Dopamine-GRM-8B model *(About 2 week)*.
 - [ ] Release Robo-Dopamine-GRM-8B-Pro model *(About 3 week)*.
-- [ ] Release full GRM dataset and GRM training codes *(About 1 months)*.
+- [ ] Release full GRM dataset and GRM pre-training codes *(About 1 months)*.
 - [ ] Release Dopamine-RL training codes for simulator and real-world settings *(Maybe 2 months or more)*.
 
 
@@ -309,7 +309,7 @@ bash scripts/finetune_grm.sh
 ```
 
 
-## 🤖 Pre-Training
+## 🤖 Dopamine-RL Infra
 ***Coming soon ...***
 
 
