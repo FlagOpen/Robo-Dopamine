@@ -123,7 +123,7 @@ model = GRMInference("tanhuajie2001/Robo-Dopamine-GRM-3B")
 TASK_INSTRUCTION = "organize the table"
 BASE_DEMO_PATH = "./examples/demo_table"
 GOAL_IMAGE_PATH = "./examples/demo_table/goal_image.png" 
-
+OUTPUT_ROOT = "./results"
 
 output_dir = model.run_pipeline(
     cam_high_path  = os.path.join(BASE_DEMO_PATH, "cam_high.mp4"),
